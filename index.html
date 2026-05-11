@@ -91,16 +91,19 @@
 
         .content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
         .genre-tag { font-size: 0.65rem; text-transform: uppercase; color: var(--accent-color); margin-bottom: 5px; font-weight: bold; }
-h2 { 
-    margin: 0 0 8px 0; 
-    color: #fff; 
-    font-size: 1.1rem; 
-    /* Cambios aquí: */
-    overflow: visible; 
-    text-overflow: clip; 
-    white-space: normal; 
-    line-height: 1.2;
-}        .description { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* MODIFICACIÓN AQUÍ PARA EL TÍTULO COMPLETO */
+        h2 { 
+            margin: 0 0 8px 0; 
+            color: #fff; 
+            font-size: 1.1rem; 
+            white-space: normal; 
+            overflow: visible; 
+            text-overflow: clip; 
+            line-height: 1.2;
+        }
+
+        .description { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
         .links-row { display: flex; gap: 10px; margin-bottom: 10px; }
         .circle-link { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--accent-color); background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: 0.3s; }
@@ -143,7 +146,6 @@ h2 {
         let allMangas = []; 
         let currentStatus = 'TODOS';
 
-        // Función para limpiar acentos (vuelve "EMISIÓN" -> "EMISION")
         const cleanText = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
 
         async function loadData() {
@@ -198,30 +200,21 @@ h2 {
 
         function filterByStatus(status) {
             currentStatus = status;
-            
-            // UI: Cambiar botón activo
             document.querySelectorAll('.filter-bar a').forEach(el => el.classList.remove('active'));
             const normalizedId = cleanText(status).toLowerCase();
             const btnId = status === 'TODOS' ? 'btn-todos' : `btn-${normalizedId}`;
             const targetBtn = document.getElementById(btnId);
             if (targetBtn) targetBtn.classList.add('active');
-
             filterMangas();
         }
 
         function filterMangas() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            
             const filtered = allMangas.filter(m => {
-                // Filtro de Estado (Comparación insensible a acentos)
                 const matchesStatus = (currentStatus === 'TODOS' || cleanText(m.estado) === cleanText(currentStatus));
-                
-                // Filtro de Nombre
                 const matchesName = m.titulo.toLowerCase().includes(query);
-                
                 return matchesStatus && matchesName;
             });
-
             renderGrid(filtered);
         }
 
