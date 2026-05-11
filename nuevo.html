@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Biblioteca - Panel de Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #d4a373;
+            --text-main: #f5f5f5;
+            --text-dim: #a0a0a0;
+            --input-bg: #252525;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Cambiado para mejor scroll en móvil */
+            min-height: 100vh;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid #333;
+            margin-top: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.4rem;
+        }
+
+        /* TABS RESPONSIVAS */
+        .tabs {
+            display: flex;
+            background: #111;
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: 0.3s;
+            color: var(--text-dim);
+        }
+
+        .tab.active { background-color: var(--accent-color); color: #000; }
+
+        form { display: flex; flex-direction: column; gap: 15px; }
+
+        /* FILAS QUE SE CONVIERTEN EN COLUMNAS EN MÓVIL */
+        .row { 
+            display: flex; 
+            gap: 15px; 
+        }
+
+        .input-group { display: flex; flex-direction: column; gap: 5px; }
+
+        label {
+            font-size: 0.7rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        input, textarea, select {
+            background: var(--input-bg);
+            border: 1px solid #444;
+            color: white;
+            padding: 12px; /* Más grande para fácil toque */
+            border-radius: 10px;
+            font-size: 1rem; /* Evita que iOS haga zoom automático */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        .btn-volver {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* --- MEDIA QUERIES PARA MÓVIL --- */
+        @media (max-width: 480px) {
+            .row {
+                flex-direction: column; /* Las filas se vuelven columnas */
+                gap: 15px;
+            }
+            
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            h2 { font-size: 1.2rem; }
+            
+            input, textarea, select, button {
+                font-size: 16px; /* Tamaño estándar para móviles */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="Index.html" class="btn-volver">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+    
+    <h2>Admin Panel</h2>
+
+    <div class="tabs">
+        <div id="tabNuevo" class="tab active" onclick="setMode('nuevo')">Añadir</div>
+        <div id="tabActualizar" class="tab" onclick="setMode('actualizar')">Actualizar</div>
+    </div>
+
+    <form id="bibliotecaForm">
+        <input type="hidden" name="accion" id="accionField" value="nuevo">
+
+        <div class="input-group">
+            <label>Título de la Obra</label>
+            <input type="text" name="titulo" id="tituloInput" placeholder="Nombre del manhwa" required list="listaTitulos">
+            <datalist id="listaTitulos"></datalist>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label>Capítulo</label>
+                <input type="text" name="capitulo" placeholder="Ej: 124">
+            </div>
+            <div class="input-group">
+                <label>Estado</label>
+                <select name="estado">
+                    <option value="EMISIÓN">EMISIÓN</option>
+                    <option value="FINALIZADO">FINALIZADO</option>
+                    <option value="PAUSA">PAUSA</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label>Género</label>
+                <input type="text" name="genero" placeholder="Acción, etc.">
+            </div>
+            <div class="input-group">
+                <label>Clasificación</label>
+                <select name="tipo">
+                    <option value="TODO PÚBLICO">Todo Público</option>
+                    <option value="+18">+18</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>URL Portada</label>
+            <input type="text" name="portada" placeholder="Link de la imagen">
+        </div>
+
+        <div class="row">
+            <div class="input-group">
+                <label>Link Web</label>
+                <input type="text" name="l1" placeholder="URL para leer">
+            </div>
+            <div class="input-group">
+                <label>Logo Icono</label>
+                <input type="text" name="i1" placeholder="URL del logo">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Descripción</label>
+            <textarea name="descripcion" rows="3"></textarea>
+        </div>
+
+        <button type="submit" id="btnEnviar">Guardar en Biblioteca</button>
+    </form>
+
+    <div id="statusMsg"></div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby_lwM_yOxj6J8_I8KktuP-11nnbQjLGdhBJHQF2iDea5u14zrXKK-9y25Z8tXI_mr_Vw/exec';
+    const DATOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQqdHFLoW-soBo7YP-IeMArvI8QTGzHhm_g2UuuA1_wfdHXe1JolxYsyXbSBUet6m-_NlUbvZd-Bttz/pub?gid=0&single=true&output=csv';
+
+    const form = document.getElementById('bibliotecaForm');
+    const btnEnviar = document.getElementById('btnEnviar');
+
+    function setMode(mode) {
+        document.getElementById('accionField').value = mode;
+        document.getElementById('tabNuevo').classList.toggle('active', mode === 'nuevo');
+        document.getElementById('tabActualizar').classList.toggle('active', mode === 'actualizar');
+        btnEnviar.innerText = mode === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
+    }
+
+    async function cargarSugerencias() {
+        try {
+            const respuesta = await fetch(DATOS_URL);
+            const texto = await respuesta.text();
+            const filas = texto.split(/\r?\n/).slice(1);
+            const dataList = document.getElementById('listaTitulos');
+            dataList.innerHTML = ""; 
+            filas.forEach(fila => {
+                const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (columnas[0]) {
+                    const titulo = columnas[0].replace(/"/g, '').trim();
+                    const option = document.createElement('option');
+                    option.value = titulo;
+                    dataList.appendChild(option);
+                }
+            });
+        } catch (e) { console.log(e); }
+    }
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = "Enviando...";
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+        .then(() => {
+            alert("¡Listo! Actualizado.");
+            form.reset();
+            btnEnviar.disabled = false;
+            setMode(document.getElementById('accionField').value);
+            cargarSugerencias();
+        })
+        .catch(() => {
+            alert("Error de conexión");
+            btnEnviar.disabled = false;
+        });
+    });
+
+    cargarSugerencias();
+</script>
+</body>
+</html>
