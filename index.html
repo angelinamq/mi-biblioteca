@@ -12,79 +12,132 @@
             --accent-color: #d4a373; 
             --text-main: #f5f5f5;
             --text-dim: #b0b0b0;
+            --danger-color: #ff4d4d;
         }
 
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        header { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            padding: 15px; /* Reducido para móviles */
+        }
+
+        header { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
 
         .emision-badge { 
             background-color: #000; color: white; padding: 10px 40px; border-radius: 50px; 
-            font-size: 24px; font-weight: bold; border: 1px solid var(--accent-color); 
-            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px;
+            font-size: 20px; font-weight: bold; border: 1px solid var(--accent-color); 
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;
+            text-align: center;
         }
 
         .nav-container {
             width: 100%; max-width: 1200px; display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 20px; background: #252525;
-            padding: 15px 25px; border-radius: 12px; border-bottom: 2px solid var(--accent-color);
+            align-items: center; flex-wrap: wrap; gap: 15px; background: #252525;
+            padding: 15px; border-radius: 12px; border-bottom: 2px solid var(--accent-color);
+            box-sizing: border-box;
         }
 
-        .filter-bar { display: flex; gap: 15px; }
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        
         .filter-bar a {
             text-decoration: none; color: var(--text-dim); font-weight: bold;
-            font-size: 0.9rem; text-transform: uppercase; transition: 0.3s;
-            padding: 5px 10px; cursor: pointer;
+            font-size: 0.75rem; text-transform: uppercase; transition: 0.3s;
+            padding: 8px 12px; cursor: pointer; border-radius: 6px;
+            background: rgba(255,255,255,0.05);
         }
-        .filter-bar a:hover, .filter-bar a.active { color: var(--accent-color); }
 
+        .filter-bar a:hover, .filter-bar a.active { color: var(--accent-color); background: rgba(212, 163, 115, 0.15); }
+
+        /* BUSCADOR RESPONSIVO */
         .search-wrapper {
             position: relative; display: flex; align-items: center; background: #111;
-            padding: 8px 15px; border-radius: 25px; border: 1px solid #444; min-width: 250px;
-        }
-        .search-wrapper input { background: transparent; border: none; color: white; outline: none; width: 100%; }
-
-        .grid-container { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
-            gap: 25px; max-width: 1200px; margin: 20px auto; 
+            padding: 10px 15px; border-radius: 25px; border: 1px solid #444; 
+            flex-grow: 1; min-width: 200px;
         }
         
+        .search-wrapper input { 
+            background: transparent; border: none; color: white; outline: none; 
+            width: 100%; font-size: 16px; /* Evita zoom en iOS */
+        }
+        
+        .clear-search {
+            position: absolute; right: 40px; cursor: pointer; color: var(--text-dim); 
+            font-size: 18px; display: none; z-index: 5;
+        }
+
+        /* GRID RESPONSIVO */
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+            gap: 20px; max-width: 1200px; margin: 20px auto; 
+        }
+
         .card { 
             background-color: var(--card-bg); border-radius: 15px; display: flex; 
-            padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;
+            padding: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); transition: 0.3s;
             align-items: flex-start;
         }
 
-        .image-container { flex: 0 0 120px; height: 180px; background: #111; border-radius: 8px; overflow: hidden; margin-right: 15px; border: 1px solid #444; }
+        .image-container { 
+            flex: 0 0 100px; height: 150px; background: #000; 
+            border-radius: 8px; overflow: hidden; margin-right: 12px; border: 1px solid #444; 
+        }
+        
         .image-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        .genre-tag { font-size: 0.65rem; text-transform: uppercase; color: var(--accent-color); margin-bottom: 5px; font-weight: bold; }
         
-        h2 { margin: 0 0 8px 0; color: #fff; font-size: 1.1rem; white-space: normal; line-height: 1.2; }
+        h2 { margin: 0 0 5px 0; color: #fff; font-size: 1rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Estilos para la descripción expandible */
         .description { 
-            font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; line-height: 1.4; 
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; 
-            overflow: hidden; transition: all 0.3s ease;
+            font-size: 0.75rem; color: var(--text-dim); margin-bottom: 5px; line-height: 1.3; 
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
         }
         .description.expanded { -webkit-line-clamp: unset; display: block; }
 
         .btn-more {
             background: none; border: none; color: var(--accent-color);
-            font-size: 0.75rem; font-weight: bold; cursor: pointer;
-            padding: 0; margin-bottom: 12px; text-align: left; width: fit-content;
+            font-size: 0.7rem; font-weight: bold; cursor: pointer; padding: 5px 0;
         }
 
-        .links-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .circle-link { width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--accent-color); background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .circle-link img { width: 100%; height: 100%; object-fit: cover; }
+        .links-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .circle-link { 
+            width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--accent-color); 
+            background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; 
+        }
 
-        .stats { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #444; font-size: 0.75rem; }
-        .status-badge { padding: 2px 8px; border-radius: 4px; background: #444; text-transform: uppercase; font-weight: bold; }
+        .stats { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #444; font-size: 0.7rem; }
+        .status-badge { padding: 2px 6px; border-radius: 4px; background: #444; color: #fff; font-weight: bold; }
         .chapters { color: var(--accent-color); font-weight: bold; }
 
-        @media (max-width: 600px) { .grid-container { grid-template-columns: 1fr; } }
+        /* --- MEDIA QUERIES (MÓVIL) --- */
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            
+            .nav-container { flex-direction: column; padding: 12px; }
+            
+            .search-wrapper { width: 100%; }
+
+            .grid-container { 
+                grid-template-columns: 1fr; /* Una columna en móvil */
+                gap: 15px;
+            }
+
+            .card { padding: 10px; }
+            
+            .image-container { flex: 0 0 85px; height: 130px; }
+            
+            h2 { font-size: 0.95rem; }
+            
+            .filter-bar a { font-size: 0.7rem; padding: 6px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -97,9 +150,16 @@
                 <a onclick="filterByStatus('EMISIÓN')" id="btn-emision">Emisión</a>
                 <a onclick="filterByStatus('FINALIZADO')" id="btn-finalizado">Finalizado</a>
                 <a onclick="filterByStatus('PAUSA')" id="btn-pausa">Pausa</a>
+                <a onclick="filterByStatus('+18')" id="btn-18">+18</a>
+                
+                <a href="Nuevo.html" style="border: 1px solid var(--accent-color); background: rgba(212, 163, 115, 0.1);">
+                    <i class="fas fa-plus"></i> Admin
+                </a>
             </nav>
+            
             <div class="search-wrapper">
-                <input type="text" id="searchInput" placeholder="Buscar título..." onkeyup="filterMangas()">
+                <input type="text" id="searchInput" placeholder="Buscar título..." onkeyup="handleSearchInput()" oninput="toggleClearButton()">
+                <i id="clearBtn" class="fas fa-times clear-search" onclick="clearSearch()"></i>
                 <i class="fas fa-search" style="color: var(--accent-color)"></i>
             </div>
         </div>
@@ -112,7 +172,7 @@
         let allMangas = []; 
         let currentStatus = 'TODOS';
 
-        const cleanText = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+        const cleanText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim() : "";
 
         async function loadData() {
             try {
@@ -122,6 +182,10 @@
                 allMangas = rows.map(row => {
                     const col = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if (col.length < 5 || col[0].trim() === "") return null;
+                    
+                    let rawTipo = col[12]?.trim() || "";
+                    let displayTipo = (rawTipo === "18" || rawTipo === "+18") ? "+18" : rawTipo;
+
                     return {
                         titulo: col[0].replace(/"/g, '').trim(),
                         cap: col[1]?.trim(),
@@ -130,17 +194,34 @@
                         desc: col[4]?.replace(/"/g, '').trim(),
                         l1: col[5]?.trim(), l2: col[6]?.trim(), l3: col[7]?.trim(),
                         i1: col[8]?.trim(), i2: col[9]?.trim(), i3: col[10]?.trim(),
-                        portada: col[11]?.trim()
+                        portada: col[11]?.trim(),
+                        tipo: displayTipo 
                     };
                 }).filter(m => m !== null);
                 renderGrid(allMangas);
             } catch (e) { console.error("Error cargando datos:", e); }
         }
 
+        function handleSearchInput() { filterMangas(); }
+
+        function toggleClearButton() {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearBtn');
+            clearBtn.style.display = input.value.length > 0 ? 'block' : 'none';
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            toggleClearButton();
+            filterMangas();
+            input.focus();
+        }
+
         function toggleDescription(btn) {
             const desc = btn.previousElementSibling;
             const isExpanded = desc.classList.toggle('expanded');
-            btn.textContent = isExpanded ? "Mostrar menos" : "Más...";
+            btn.textContent = isExpanded ? "Menos" : "Más...";
         }
 
         function renderGrid(list) {
@@ -148,18 +229,23 @@
             grid.innerHTML = list.map(item => `
                 <article class="card">
                     <div class="image-container">
-                        <img src="${item.portada && item.portada !== '[Portada]' ? item.portada : 'https://via.placeholder.com/150x220?text=Sin+Foto'}" onerror="this.src='https://via.placeholder.com/150x220?text=Error'">
+                        <img src="${item.portada && item.portada !== '[Portada]' ? item.portada : ''}" 
+                             onerror="this.style.opacity='0'">
                     </div>
                     <div class="content">
-                        <div class="genre-tag">${item.genero}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="genre-tag">${item.genero}</div>
+                            ${item.tipo === "+18" ? `<span style="color:var(--danger-color); font-size:10px; font-weight:bold; border:1px solid; padding:1px 3px; border-radius:3px;">+18</span>` : ''}
+                        </div>
                         <h2 title="${item.titulo}">${item.titulo}</h2>
                         <p class="description">${item.desc}</p>
-                        ${item.desc.length > 100 ? `<button class="btn-more" onclick="toggleDescription(this)">Más...</button>` : ''}
+                        ${item.desc.length > 80 ? `<button class="btn-more" onclick="toggleDescription(this)">Más...</button>` : ''}
+                        
                         <div class="links-row">
-                            ${item.l1 && item.l1 !== '[Link1]' ? `<a href="${item.l1}" target="_blank" class="circle-link"><img src="${item.i1 || 'https://cdn-icons-png.flaticon.com/512/124/124010.png'}"></a>` : ''}
-                            ${item.l2 && item.l2 !== '[Link2]' ? `<a href="${item.l2}" target="_blank" class="circle-link"><img src="${item.i2 || 'https://cdn-icons-png.flaticon.com/512/124/124010.png'}"></a>` : ''}
-                            ${item.l3 && item.l3 !== '[Link3]' ? `<a href="${item.l3}" target="_blank" class="circle-link"><img src="${item.i3 || 'https://cdn-icons-png.flaticon.com/512/124/124010.png'}"></a>` : ''}
+                            ${item.l1 && item.l1 !== '[Link1]' ? `<a href="${item.l1}" target="_blank" class="circle-link"><img src="${item.i1}" onerror="this.style.opacity='0'"></a>` : ''}
+                            ${item.l2 && item.l2 !== '[Link2]' ? `<a href="${item.l2}" target="_blank" class="circle-link"><img src="${item.i2}" onerror="this.style.opacity='0'"></a>` : ''}
                         </div>
+
                         <div class="stats">
                             <span class="status-badge">${item.estado}</span>
                             <span class="chapters">CAP: ${item.cap}</span>
@@ -172,7 +258,7 @@
         function filterByStatus(status) {
             currentStatus = status;
             document.querySelectorAll('.filter-bar a').forEach(el => el.classList.remove('active'));
-            const btnId = status === 'TODOS' ? 'btn-todos' : `btn-${cleanText(status).toLowerCase()}`;
+            let btnId = (status === 'TODOS') ? 'btn-todos' : (status === '+18') ? 'btn-18' : `btn-${cleanText(status).toLowerCase()}`;
             if (document.getElementById(btnId)) document.getElementById(btnId).classList.add('active');
             filterMangas();
         }
@@ -180,8 +266,8 @@
         function filterMangas() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allMangas.filter(m => {
-                const matchesStatus = (currentStatus === 'TODOS' || cleanText(m.estado) === cleanText(currentStatus));
-                return matchesStatus && m.titulo.toLowerCase().includes(query);
+                let matchesFilter = (currentStatus === 'TODOS') ? true : (currentStatus === '+18') ? (m.tipo === "+18") : (cleanText(m.estado) === cleanText(currentStatus));
+                return matchesFilter && m.titulo.toLowerCase().includes(query);
             });
             renderGrid(filtered);
         }
