@@ -2,44 +2,77 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <title>Admin Panel - InventaSoft</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 40px; }
-        .panel { background: #1a1a1a; padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; border: 1px solid #333; }
-        h1 { text-align: center; color: #d4a373; font-size: 1.5rem; }
+        body { background: #0b0b0b; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .panel { background: #161616; padding: 30px; border-radius: 20px; width: 100%; max-width: 600px; border: 1px solid #d4a37333; }
+        h1 { text-align: center; color: #d4a373; font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 30px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; color: #d4a373; margin-bottom: 5px; }
-        input, select, textarea { width: 100%; padding: 10px; background: #2d2d2d; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #d4a373; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        label { display: block; font-size: 0.7rem; color: #d4a373; font-weight: bold; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 12px; background: #222; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: #d4a373; }
+        button { width: 100%; padding: 15px; background: #d4a373; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #fff; }
     </style>
 </head>
 <body>
     <div class="panel">
         <h1>ADMIN PANEL</h1>
+        
         <div class="form-group">
             <label>SELECCIONAR PARA ACTUALIZAR</label>
             <select id="selectManga" onchange="fillForm()">
                 <option value="">-- Seleccionar manga --</option>
             </select>
         </div>
-        <hr style="border: 0.5px solid #333; margin: 20px 0;">
+
         <form id="mangaForm">
             <div class="form-group">
                 <label>TÍTULO DE LA OBRA</label>
-                <input type="text" id="titulo" required>
+                <input type="text" id="titulo" placeholder="Nombre del manhwa">
             </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>CAPÍTULO</label>
+                    <input type="text" id="cap" placeholder="Ej: 124">
+                </div>
+                <div class="form-group">
+                    <label>ESTADO</label>
+                    <select id="estado">
+                        <option value="EMISIÓN">EMISIÓN</option>
+                        <option value="FINALIZADO">FINALIZADO</option>
+                        <option value="PAUSA">PAUSA</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>GÉNERO</label>
+                    <input type="text" id="genero" placeholder="Acción, etc.">
+                </div>
+                <div class="form-group">
+                    <label>CLASIFICACIÓN (18)</label>
+                    <select id="tipo">
+                        <option value="Publico">Todo Público</option>
+                        <option value="18">+18</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group">
-                <label>ESTADO</label>
-                <select id="estado">
-                    <option value="EMISIÓN">EMISIÓN</option>
-                    <option value="FINALIZADO">FINALIZADO</option>
-                </select>
+                <label>URL PORTADA</label>
+                <input type="text" id="portada" placeholder="Link de la imagen">
             </div>
+
             <div class="form-group">
                 <label>DESCRIPCIÓN</label>
-                <textarea id="desc" rows="3"></textarea>
+                <textarea id="desc" rows="4"></textarea>
             </div>
-            <button type="button" onclick="alert('Conecta esto con tu Google Apps Script')">GUARDAR CAMBIOS</button>
+
+            <button type="button" onclick="alert('Datos listos para enviar')">ACTUALIZAR DATOS</button>
         </form>
     </div>
 
@@ -52,7 +85,7 @@
                 const response = await fetch(SHEET_URL);
                 const data = await response.text();
                 
-                // FILTRADO ESTRICTO PARA NO MOSTRAR OPCIONES BORRADAS
+                // --- EL PLUS: FILTRADO ESTRICTO ---
                 const rows = data.split(/\r?\n/)
                     .filter(line => line.trim() !== "" && line.split(',')[0].replace(/"/g, '').trim() !== "")
                     .slice(1);
@@ -66,8 +99,12 @@
                     
                     const manga = {
                         titulo: clean(col[0]),
+                        cap: clean(col[1]),
                         estado: clean(col[2]),
-                        desc: clean(col[4])
+                        genero: clean(col[3]),
+                        desc: clean(col[4]),
+                        portada: clean(col[11]),
+                        tipo: clean(col[12])
                     };
 
                     const option = document.createElement('option');
@@ -85,8 +122,12 @@
             const manga = allData.find(m => m.titulo === selected);
             if (manga) {
                 document.getElementById('titulo').value = manga.titulo;
+                document.getElementById('cap').value = manga.cap;
                 document.getElementById('estado').value = manga.estado;
+                document.getElementById('genero').value = manga.genero;
                 document.getElementById('desc').value = manga.desc;
+                document.getElementById('portada').value = manga.portada;
+                document.getElementById('tipo').value = manga.tipo;
             }
         }
 
