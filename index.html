@@ -15,30 +15,38 @@
         }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
         header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
-        .emision-badge { background-color: #000; color: white; padding: 10px 40px; border-radius: 50px; font-size: 20px; font-weight: bold; border: 1px solid var(--accent-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+        .emision-badge { background-color: #000; color: white; padding: 10px 40px; border-radius: 50px; font-size: 20px; font-weight: bold; border: 1px solid var(--accent-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
         .nav-container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: #252525; padding: 15px; border-radius: 12px; border-bottom: 2px solid var(--accent-color); box-sizing: border-box; }
-        .filter-bar { display: flex; gap: 8px; }
-        .filter-bar a { text-decoration: none; color: var(--text-dim); font-size: 0.8rem; cursor: pointer; padding: 8px 12px; border-radius: 6px; }
-        .filter-bar a.active { color: var(--accent-color); background: rgba(212, 163, 115, 0.15); }
-        .search-wrapper { position: relative; display: flex; align-items: center; background: #111; padding: 10px 15px; border-radius: 25px; flex-grow: 1; max-width: 400px; }
-        .search-wrapper input { background: transparent; border: none; color: white; outline: none; width: 100%; }
+        .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-bar a { text-decoration: none; color: var(--text-dim); font-weight: bold; font-size: 0.75rem; text-transform: uppercase; transition: 0.3s; padding: 8px 12px; cursor: pointer; border-radius: 6px; background: rgba(255,255,255,0.05); }
+        .filter-bar a:hover, .filter-bar a.active { color: var(--accent-color); background: rgba(212, 163, 115, 0.15); }
+        .search-wrapper { position: relative; display: flex; align-items: center; background: #111; padding: 10px 15px; border-radius: 25px; border: 1px solid #444; flex-grow: 1; min-width: 200px; }
+        .search-wrapper input { background: transparent; border: none; color: white; outline: none; width: 100%; font-size: 16px; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; max-width: 1200px; margin: 20px auto; }
-        .card { background-color: var(--card-bg); border-radius: 15px; display: flex; padding: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
-        .image-container { flex: 0 0 100px; height: 150px; background: #000; border-radius: 8px; overflow: hidden; margin-right: 12px; }
+        .card { background-color: var(--card-bg); border-radius: 15px; display: flex; padding: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); transition: 0.3s; align-items: flex-start; }
+        .image-container { flex: 0 0 100px; height: 150px; background: #000; border-radius: 8px; overflow: hidden; margin-right: 12px; border: 1px solid #444; }
         .image-container img { width: 100%; height: 100%; object-fit: cover; }
-        .content { flex: 1; min-width: 0; }
-        h2 { margin: 0 0 5px 0; font-size: 1rem; color: #fff; }
-        .description { font-size: 0.75rem; color: var(--text-dim); line-height: 1.3; margin-bottom: 10px; }
-        .stats { display: flex; justify-content: space-between; font-size: 0.7rem; border-top: 1px solid #444; padding-top: 8px; }
+        .content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        h2 { margin: 0 0 5px 0; color: #fff; font-size: 1rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
+        .description { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .stats { margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid #444; font-size: 0.7rem; }
+        .status-badge { padding: 2px 6px; border-radius: 4px; background: #444; color: #fff; font-weight: bold; }
+        .chapters { color: var(--accent-color); font-weight: bold; }
+        footer { text-align: center; padding: 30px 10px; margin-top: 40px; border-top: 1px solid rgba(212, 163, 115, 0.2); color: var(--text-dim); font-size: 0.8rem; }
     </style>
 </head>
 <body>
+
     <header>
         <div class="emision-badge">Mi Biblioteca</div>
         <div class="nav-container">
             <nav class="filter-bar">
-                <a onclick="filterByStatus('TODOS')" class="active">Inicio</a>
-                <a href="nuevo.html">Admin</a>
+                <a onclick="filterByStatus('TODOS')" id="btn-todos" class="active">Inicio</a>
+                <a onclick="filterByStatus('EMISIÓN')" id="btn-emision">Emisión</a>
+                <a onclick="filterByStatus('FINALIZADO')" id="btn-finalizado">Finalizado</a>
+                <a onclick="filterByStatus('PAUSA')" id="btn-pausa">Pausa</a>
+                <a onclick="filterByStatus('18')" id="btn-18">+18</a>
+                <a href="nuevo.html" style="border: 1px solid var(--accent-color);">Admin</a>
             </nav>
             <div class="search-wrapper">
                 <input type="text" id="searchInput" placeholder="Buscar título..." onkeyup="filterMangas()">
@@ -46,32 +54,42 @@
             </div>
         </div>
     </header>
+
     <div class="grid-container" id="manga-grid"></div>
+
+    <footer>
+        Realizado por <b>Angelina</b> &copy; 2026
+    </footer>
 
     <script>
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8uwIvihvXob_wQ8BxNF0yJ8bo5HnsoHWp7nVFhM_OJckBS2uZzPapje7vArGEfDprRM58b8cwvGG5/pub?gid=0&single=true&output=csv';
         let allMangas = [];
+        let currentStatus = 'TODOS';
+
+        const cleanForFilter = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim() : "";
 
         async function loadData() {
             try {
                 const response = await fetch(SHEET_URL);
                 const data = await response.text();
                 
-                // FILTRADO ESTRICTO DE FILAS VACÍAS
+                // --- EL PLUS: FILTRADO ESTRICTO ---
                 const rows = data.split(/\r?\n/)
                     .filter(line => line.trim() !== "" && line.split(',')[0].replace(/"/g, '').trim() !== "")
                     .slice(1);
                 
                 allMangas = rows.map(row => {
                     const col = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
+                    const cleanCell = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
+
                     return {
-                        titulo: clean(col[0]),
-                        cap: clean(col[1]),
-                        estado: clean(col[2]),
-                        genero: clean(col[3]),
-                        desc: clean(col[4]),
-                        portada: clean(col[11])
+                        titulo: cleanCell(col[0]),
+                        cap: cleanCell(col[1]),
+                        estado: cleanCell(col[2]) || "EMISIÓN",
+                        genero: cleanCell(col[3]),
+                        desc: cleanCell(col[4]),
+                        portada: cleanCell(col[11]),
+                        tipo: cleanCell(col[12])
                     };
                 });
                 renderGrid(allMangas);
@@ -82,22 +100,34 @@
             const grid = document.getElementById('manga-grid');
             grid.innerHTML = list.map(item => `
                 <article class="card">
-                    <div class="image-container"><img src="${item.portada}"></div>
+                    <div class="image-container"><img src="${item.portada}" onerror="this.src='https://via.placeholder.com/100x150'"></div>
                     <div class="content">
-                        <h2>${item.titulo}</h2>
+                        <h2 title="${item.titulo}">${item.titulo}</h2>
                         <p class="description">${item.desc}</p>
                         <div class="stats">
-                            <span>${item.estado}</span>
-                            <span>CAP: ${item.cap}</span>
+                            <span class="status-badge">${item.estado}</span>
+                            <span class="chapters">CAP: ${item.cap}</span>
                         </div>
                     </div>
                 </article>
             `).join('');
         }
 
+        function filterByStatus(status) {
+            currentStatus = status;
+            document.querySelectorAll('.filter-bar a').forEach(el => el.classList.remove('active'));
+            filterMangas();
+        }
+
         function filterMangas() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allMangas.filter(m => m.titulo.toLowerCase().includes(query));
+            const filtered = allMangas.filter(m => {
+                let matchesStatus = (currentStatus === 'TODOS') ? true : 
+                                   (currentStatus === '18') ? (m.tipo === "18") : 
+                                   (cleanForFilter(m.estado) === cleanForFilter(currentStatus));
+                let matchesSearch = m.titulo.toLowerCase().includes(query);
+                return matchesStatus && matchesSearch;
+            });
             renderGrid(filtered);
         }
 
