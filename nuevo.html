@@ -2,278 +2,95 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Biblioteca - Panel de Control</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Admin Panel</title>
     <style>
-        :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --accent-color: #d4a373;
-            --text-main: #f5f5f5;
-            --text-dim: #a0a0a0;
-            --input-bg: #252525;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-
-        .container {
-            background-color: var(--card-bg);
-            width: 100%;
-            max-width: 500px;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            border: 1px solid #333;
-            margin-top: 10px;
-        }
-
-        h2 {
-            text-align: center; color: var(--accent-color); margin-bottom: 20px;
-            font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-size: 1.4rem;
-        }
-
-        .tabs { display: flex; background: #111; padding: 5px; border-radius: 12px; margin-bottom: 20px; }
-        .tab {
-            flex: 1; padding: 12px 5px; text-align: center; cursor: pointer;
-            border-radius: 8px; font-weight: bold; font-size: 0.85rem;
-            transition: 0.3s; color: var(--text-dim);
-        }
-        .tab.active { background-color: var(--accent-color); color: #000; }
-
-        form { display: flex; flex-direction: column; gap: 15px; }
-        .row { display: flex; gap: 15px; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
-
-        label { font-size: 0.7rem; color: var(--accent-color); font-weight: bold; text-transform: uppercase; }
-
-        input, textarea, select {
-            background: var(--input-bg); border: 1px solid #444; color: white;
-            padding: 12px; border-radius: 10px; font-size: 16px; width: 100%; box-sizing: border-box;
-            outline: none;
-        }
-        
-        input:focus { border-color: var(--accent-color); }
-
-        button {
-            background-color: var(--accent-color); color: #000; border: none;
-            padding: 18px; border-radius: 12px; font-weight: bold; cursor: pointer;
-            font-size: 1rem; margin-top: 10px; transition: 0.3s;
-        }
-        button:disabled { background-color: #555; cursor: not-allowed; }
-
-        .btn-volver { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px; display: inline-block; }
-
-        footer {
-            text-align: center; padding: 25px; width: 100%; max-width: 500px;
-            color: var(--text-dim); font-size: 0.8rem; letter-spacing: 1px;
-        }
-        footer b { color: var(--accent-color); }
-
-        @media (max-width: 480px) { .row { flex-direction: column; gap: 15px; } }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 40px; }
+        .panel { background: #1a1a1a; padding: 30px; border-radius: 20px; width: 100%; max-width: 500px; border: 1px solid #333; }
+        h1 { text-align: center; color: #d4a373; font-size: 1.5rem; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.8rem; color: #d4a373; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 10px; background: #2d2d2d; border: 1px solid #444; color: #fff; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #d4a373; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <a href="index.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
-    <h2>Admin Panel</h2>
-
-    <div class="tabs">
-        <div id="tabNuevo" class="tab active" onclick="setMode('nuevo')">Añadir</div>
-        <div id="tabActualizar" class="tab" onclick="setMode('actualizar')">Actualizar</div>
-    </div>
-
-    <!-- Se añade autocomplete="off" para evitar las sugerencias largas del navegador -->
-    <form id="bibliotecaForm" autocomplete="off">
-        <input type="hidden" name="accion" id="accionField" value="nuevo">
-        
-        <div class="input-group">
-            <label>Título de la Obra</label>
-            <input type="text" name="titulo" id="tituloInput" placeholder="Nombre del manhwa" required list="listaTitulos" oninput="autoCompletar()">
-            <datalist id="listaTitulos"></datalist>
+    <div class="panel">
+        <h1>ADMIN PANEL</h1>
+        <div class="form-group">
+            <label>SELECCIONAR PARA ACTUALIZAR</label>
+            <select id="selectManga" onchange="fillForm()">
+                <option value="">-- Seleccionar manga --</option>
+            </select>
         </div>
-
-        <div class="row">
-            <div class="input-group">
-                <label>Capítulo</label>
-                <input type="text" name="capitulo" placeholder="Ej: 124">
+        <hr style="border: 0.5px solid #333; margin: 20px 0;">
+        <form id="mangaForm">
+            <div class="form-group">
+                <label>TÍTULO DE LA OBRA</label>
+                <input type="text" id="titulo" required>
             </div>
-            <div class="input-group">
-                <label>Estado</label>
-                <select name="estado">
+            <div class="form-group">
+                <label>ESTADO</label>
+                <select id="estado">
                     <option value="EMISIÓN">EMISIÓN</option>
                     <option value="FINALIZADO">FINALIZADO</option>
-                    <option value="PAUSA">PAUSA</option>
                 </select>
             </div>
-        </div>
-
-        <div class="row">
-            <div class="input-group">
-                <label>Género</label>
-                <input type="text" name="genero" placeholder="Acción, etc.">
+            <div class="form-group">
+                <label>DESCRIPCIÓN</label>
+                <textarea id="desc" rows="3"></textarea>
             </div>
-            <div class="input-group">
-                <label>Clasificación (18)</label>
-                <select name="tipo">
-                    <option value="Todo Público">Todo Público</option>
-                    <option value="18">18</option>
-                </select>
-            </div>
-        </div>
+            <button type="button" onclick="alert('Conecta esto con tu Google Apps Script')">GUARDAR CAMBIOS</button>
+        </form>
+    </div>
 
-        <div class="input-group">
-            <label>URL Portada</label>
-            <input type="text" name="portada" placeholder="Link de la imagen">
-        </div>
+    <script>
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8uwIvihvXob_wQ8BxNF0yJ8bo5HnsoHWp7nVFhM_OJckBS2uZzPapje7vArGEfDprRM58b8cwvGG5/pub?gid=0&single=true&output=csv';
+        let allData = [];
 
-        <div class="row">
-            <div class="input-group">
-                <label>Link Web (Enlace 1)</label>
-                <input type="text" name="l1" placeholder="URL para leer">
-            </div>
-            <div class="input-group">
-                <label>Logo Icono (Img 1)</label>
-                <input type="text" name="i1" placeholder="URL del logo">
-            </div>
-        </div>
+        async function loadData() {
+            try {
+                const response = await fetch(SHEET_URL);
+                const data = await response.text();
+                
+                // FILTRADO ESTRICTO PARA NO MOSTRAR OPCIONES BORRADAS
+                const rows = data.split(/\r?\n/)
+                    .filter(line => line.trim() !== "" && line.split(',')[0].replace(/"/g, '').trim() !== "")
+                    .slice(1);
 
-        <div class="input-group">
-            <label>Descripción</label>
-            <textarea name="descripcion" rows="3"></textarea>
-        </div>
+                const select = document.getElementById('selectManga');
+                select.innerHTML = '<option value="">-- Seleccionar manga --</option>';
 
-        <button type="submit" id="btnEnviar">Añadir a Biblioteca</button>
-    </form>
-    <div id="statusMsg" style="text-align: center; margin-top: 15px; font-size: 0.85rem; min-height: 20px;"></div>
-</div>
+                allData = rows.map(row => {
+                    const col = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
+                    
+                    const manga = {
+                        titulo: clean(col[0]),
+                        estado: clean(col[2]),
+                        desc: clean(col[4])
+                    };
 
-<footer>
-    Realizado con <i class="fas fa-heart" style="color: var(--accent-color);"></i> por <b>Angelina</b>
-</footer>
-
-<script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwvLMB689TasCdbmKBd0xxoNH-_irGeiBDv560IiFcP8o-0kQlXoPg36KjmS1cqNCxt/exec';
-    const DATOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8uwIvihvXob_wQ8BxNF0yJ8bo5HnsoHWp7nVFhM_OJckBS2uZzPapje7vArGEfDprRM58b8cwvGG5/pub?gid=0&single=true&output=csv';
-
-    let baseDeDatos = []; 
-
-    const form = document.getElementById('bibliotecaForm');
-    const btnEnviar = document.getElementById('btnEnviar');
-    const statusMsg = document.getElementById('statusMsg');
-
-    function setMode(mode) {
-        document.getElementById('accionField').value = mode;
-        document.getElementById('tabNuevo').classList.toggle('active', mode === 'nuevo');
-        document.getElementById('tabActualizar').classList.toggle('active', mode === 'actualizar');
-        btnEnviar.innerText = mode === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
-        
-        if(mode === 'nuevo') {
-            form.reset();
-            statusMsg.innerText = "";
+                    const option = document.createElement('option');
+                    option.value = manga.titulo;
+                    option.textContent = manga.titulo;
+                    select.appendChild(option);
+                    
+                    return manga;
+                });
+            } catch (e) { console.error(e); }
         }
-    }
 
-    async function cargarDatos() {
-        try {
-            const respuesta = await fetch(DATOS_URL);
-            const texto = await respuesta.text();
-            
-            // Filtramos líneas vacías para evitar cargar filas borradas en el Excel
-            const filas = texto.split(/\r?\n/).filter(line => line.trim() !== "").slice(1);
-            const dataList = document.getElementById('listaTitulos');
-            dataList.innerHTML = ""; 
-            
-            baseDeDatos = filas.map(fila => {
-                // Separamos por comas pero respetamos contenido entre comillas
-                const col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                
-                // Función para limpiar comillas sobrantes y espacios
-                const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
-
-                if (!clean(col[0])) return null;
-                
-                // Mapeo según la imagen image_8fac7c.png:
-                // A=0(titulo), B=1(cap), C=2(estado), D=3(genero), E=4(desc), F=5(enlace_1), I=8(img_1), L=11(portada), M=12(18)
-                return {
-                    titulo: clean(col[0]),
-                    capitulo: clean(col[1]),
-                    estado: clean(col[2]),
-                    genero: clean(col[3]),
-                    descripcion: clean(col[4]),
-                    l1: clean(col[5]),
-                    i1: clean(col[8]),
-                    portada: clean(col[11]),
-                    tipo: clean(col[12]) === "18" ? "18" : "Todo Público"
-                };
-            }).filter(item => item !== null);
-
-            baseDeDatos.forEach(manga => {
-                const option = document.createElement('option');
-                option.value = manga.titulo;
-                dataList.appendChild(option);
-            });
-        } catch (e) { console.error("Error al cargar datos:", e); }
-    }
-
-    function autoCompletar() {
-        const modo = document.getElementById('accionField').value;
-        const tituloBuscado = document.getElementById('tituloInput').value.trim().toLowerCase();
-
-        if (modo === 'actualizar' && tituloBuscado !== "") {
-            const mangaEncontrado = baseDeDatos.find(m => m.titulo.toLowerCase() === tituloBuscado);
-            
-            if (mangaEncontrado) {
-                form.elements['capitulo'].value = mangaEncontrado.capitulo;
-                form.elements['estado'].value = mangaEncontrado.estado;
-                form.elements['genero'].value = mangaEncontrado.genero;
-                form.elements['tipo'].value = mangaEncontrado.tipo;
-                form.elements['portada'].value = mangaEncontrado.portada;
-                form.elements['l1'].value = mangaEncontrado.l1;
-                form.elements['i1'].value = mangaEncontrado.i1;
-                form.elements['descripcion'].value = mangaEncontrado.descripcion;
-                
-                statusMsg.style.color = "#d4a373";
-                statusMsg.innerText = "✓ Datos de '" + mangaEncontrado.titulo + "' cargados.";
-            } else {
-                statusMsg.innerText = "";
+        function fillForm() {
+            const selected = document.getElementById('selectManga').value;
+            const manga = allData.find(m => m.titulo === selected);
+            if (manga) {
+                document.getElementById('titulo').value = manga.titulo;
+                document.getElementById('estado').value = manga.estado;
+                document.getElementById('desc').value = manga.desc;
             }
         }
-    }
 
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-        btnEnviar.disabled = true;
-        btnEnviar.innerText = "Sincronizando...";
-        
-        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-        .then(response => response.text())
-        .then(result => {
-            alert("Operación completada con éxito");
-            form.reset();
-            btnEnviar.disabled = false;
-            setMode(document.getElementById('accionField').value);
-            cargarDatos(); 
-        })
-        .catch(err => {
-            alert("Error de red o servidor.");
-            btnEnviar.disabled = false;
-        });
-    });
-
-    window.onload = cargarDatos;
-</script>
+        loadData();
+    </script>
 </body>
 </html>
