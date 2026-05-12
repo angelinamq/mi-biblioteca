@@ -127,7 +127,6 @@
 
         #backToTop:hover { transform: translateY(-5px); background-color: #fff; }
 
-        /* ESTILO MARCA DE AGUA */
         footer {
             text-align: center; padding: 30px 10px; margin-top: 40px;
             border-top: 1px solid rgba(212, 163, 115, 0.2);
@@ -179,7 +178,6 @@
         <i class="fas fa-chevron-up"></i>
     </button>
 
-    <!-- MARCA DE AGUA -->
     <footer>
         <i class="fas fa-code"></i> Realizado por <b>Angelina</b> &copy; 2026
     </footer>
@@ -189,27 +187,38 @@
         let allMangas = []; 
         let currentStatus = 'TODOS';
 
-        const cleanText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim() : "";
+        // Limpieza de texto para filtros y comparaciones
+        const cleanForFilter = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim() : "";
 
         async function loadData() {
             try {
                 const response = await fetch(SHEET_URL);
                 const data = await response.text();
-                const rows = data.split(/\r?\n/).slice(1);
+                
+                // Eliminamos filas totalmente vacías del CSV
+                const rows = data.split(/\r?\n/).filter(line => line.trim() !== "").slice(1);
                 
                 allMangas = rows.map(row => {
+                    // Separamos por comas respetando celdas con comillas (CSV estándar)
                     const col = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (col.length < 5 || col[0].trim() === "") return null;
+                    
+                    // Función de limpieza profunda para cada celda
+                    const cleanCell = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
+
+                    if (!cleanCell(col[0])) return null;
+
+                    // Mapeo exacto según image_8fac7c.png:
+                    // 0:titulo, 1:cap, 2:estado, 3:genero, 4:desc, 5:enlace_1, 8:img_1, 11:portada, 12:18
                     return {
-                        titulo: col[0].replace(/"/g, '').trim(),
-                        cap: col[1]?.replace(/"/g, '').trim(),
-                        estado: col[2]?.replace(/"/g, '').trim() || "EMISIÓN",
-                        genero: col[3]?.replace(/"/g, '').trim(),
-                        desc: col[4]?.replace(/"/g, '').trim(),
-                        l1: col[5]?.replace(/"/g, '').trim(), 
-                        i1: col[8]?.replace(/"/g, '').trim(), 
-                        portada: col[11]?.replace(/"/g, '').trim(), 
-                        tipo: col[12]?.replace(/"/g, '').trim() 
+                        titulo: cleanCell(col[0]),
+                        cap: cleanCell(col[1]),
+                        estado: cleanCell(col[2]) || "EMISIÓN",
+                        genero: cleanCell(col[3]),
+                        desc: cleanCell(col[4]),
+                        l1: cleanCell(col[5]), 
+                        i1: cleanCell(col[8]), 
+                        portada: cleanCell(col[11]), 
+                        tipo: cleanCell(col[12]) 
                     };
                 }).filter(m => m !== null);
                 
@@ -276,16 +285,26 @@
         function filterByStatus(status) {
             currentStatus = status;
             document.querySelectorAll('.filter-bar a').forEach(el => el.classList.remove('active'));
-            let btnId = (status === 'TODOS') ? 'btn-todos' : (status === '18') ? 'btn-18' : `btn-${cleanText(status).toLowerCase()}`;
+            
+            // Generar el ID correcto para activar el botón visualmente
+            let btnId;
+            if (status === 'TODOS') btnId = 'btn-todos';
+            else if (status === '18') btnId = 'btn-18';
+            else btnId = `btn-${cleanForFilter(status).toLowerCase()}`;
+
             const targetBtn = document.getElementById(btnId);
             if (targetBtn) targetBtn.classList.add('active');
+            
             filterMangas();
         }
 
         function filterMangas() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allMangas.filter(m => {
-                let matchesStatus = (currentStatus === 'TODOS') ? true : (currentStatus === '18') ? (m.tipo === "18") : (cleanText(m.estado) === cleanText(currentStatus));
+                let matchesStatus = (currentStatus === 'TODOS') ? true : 
+                                   (currentStatus === '18') ? (m.tipo === "18") : 
+                                   (cleanForFilter(m.estado) === cleanForFilter(currentStatus));
+                
                 let matchesSearch = m.titulo.toLowerCase().includes(query);
                 return matchesStatus && matchesSearch;
             });
