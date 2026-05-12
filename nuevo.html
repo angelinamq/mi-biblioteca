@@ -95,6 +95,7 @@
         <div id="tabActualizar" class="tab" onclick="setMode('actualizar')">Actualizar</div>
     </div>
 
+    <!-- Se añade autocomplete="off" para evitar las sugerencias largas del navegador -->
     <form id="bibliotecaForm" autocomplete="off">
         <input type="hidden" name="accion" id="accionField" value="nuevo">
         
@@ -125,7 +126,7 @@
                 <input type="text" name="genero" placeholder="Acción, etc.">
             </div>
             <div class="input-group">
-                <label>Clasificación</label>
+                <label>Clasificación (18)</label>
                 <select name="tipo">
                     <option value="Todo Público">Todo Público</option>
                     <option value="18">18</option>
@@ -140,11 +141,11 @@
 
         <div class="row">
             <div class="input-group">
-                <label>Link Web</label>
+                <label>Link Web (Enlace 1)</label>
                 <input type="text" name="l1" placeholder="URL para leer">
             </div>
             <div class="input-group">
-                <label>Logo Icono</label>
+                <label>Logo Icono (Img 1)</label>
                 <input type="text" name="i1" placeholder="URL del logo">
             </div>
         </div>
@@ -162,7 +163,6 @@
 <footer>
     Realizado con <i class="fas fa-heart" style="color: var(--accent-color);"></i> por <b>Angelina</b>
 </footer>
-
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwvLMB689TasCdbmKBd0xxoNH-_irGeiBDv560IiFcP8o-0kQlXoPg36KjmS1cqNCxt/exec';
@@ -190,24 +190,33 @@
         try {
             const respuesta = await fetch(DATOS_URL);
             const texto = await respuesta.text();
-            const filas = texto.split(/\r?\n/).slice(1);
+            
+            // Filtramos líneas vacías para evitar cargar filas borradas en el Excel
+            const filas = texto.split(/\r?\n/).filter(line => line.trim() !== "").slice(1);
             const dataList = document.getElementById('listaTitulos');
             dataList.innerHTML = ""; 
             
             baseDeDatos = filas.map(fila => {
+                // Separamos por comas pero respetamos contenido entre comillas
                 const col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                if (!col[0] || col[0].trim() === "") return null;
                 
+                // Función para limpiar comillas sobrantes y espacios
+                const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
+
+                if (!clean(col[0])) return null;
+                
+                // Mapeo según la imagen image_8fac7c.png:
+                // A=0(titulo), B=1(cap), C=2(estado), D=3(genero), E=4(desc), F=5(enlace_1), I=8(img_1), L=11(portada), M=12(18)
                 return {
-                    titulo: col[0].replace(/^"|"$/g, '').trim(),
-                    capitulo: col[1]?.replace(/^"|"$/g, '').trim() || "",
-                    estado: col[2]?.replace(/^"|"$/g, '').trim() || "EMISIÓN",
-                    genero: col[3]?.replace(/^"|"$/g, '').trim() || "",
-                    descripcion: col[4]?.replace(/^"|"$/g, '').trim() || "",
-                    l1: col[5]?.replace(/^"|"$/g, '').trim() || "",
-                    i1: col[8]?.replace(/^"|"$/g, '').trim() || "",
-                    portada: col[11]?.replace(/^"|"$/g, '').trim() || "",
-                    tipo: col[12]?.replace(/^"|"$/g, '').trim() || "Todo Público"
+                    titulo: clean(col[0]),
+                    capitulo: clean(col[1]),
+                    estado: clean(col[2]),
+                    genero: clean(col[3]),
+                    descripcion: clean(col[4]),
+                    l1: clean(col[5]),
+                    i1: clean(col[8]),
+                    portada: clean(col[11]),
+                    tipo: clean(col[12]) === "18" ? "18" : "Todo Público"
                 };
             }).filter(item => item !== null);
 
@@ -227,7 +236,6 @@
             const mangaEncontrado = baseDeDatos.find(m => m.titulo.toLowerCase() === tituloBuscado);
             
             if (mangaEncontrado) {
-                // Rellenar usando el atributo name
                 form.elements['capitulo'].value = mangaEncontrado.capitulo;
                 form.elements['estado'].value = mangaEncontrado.estado;
                 form.elements['genero'].value = mangaEncontrado.genero;
