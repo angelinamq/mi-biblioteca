@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,7 +11,7 @@
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --accent-color: #d4a373;
-            --danger-color: #e63946; /* Color para eliminar */
+            --danger-color: #e63946;
             --text-main: #f5f5f5;
             --text-dim: #a0a0a0;
             --input-bg: #252525;
@@ -75,13 +76,16 @@
             font-size: 1rem; transition: 0.3s; width: 100%;
         }
 
-        /* Estilo para el botón de eliminar */
         .btn-delete {
             background-color: transparent;
             color: var(--danger-color);
             border: 1px solid var(--danger-color);
             padding: 12px;
-            display: none; /* Oculto por defecto */
+            display: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
         }
         .btn-delete:hover {
             background-color: var(--danger-color);
@@ -202,8 +206,6 @@
         document.getElementById('tabActualizar').classList.toggle('active', mode === 'actualizar');
         
         btnEnviar.innerText = mode === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
-        
-        // Ocultar botón eliminar al cambiar de modo
         btnEliminar.style.display = "none";
         
         if(mode === 'nuevo') {
@@ -214,7 +216,7 @@
 
     async function cargarDatos() {
         try {
-            const respuesta = await fetch(DATOS_URL);
+            const respuesta = await fetch(DATOS_URL + "&cachebuster=" + new Date().getTime());
             const texto = await respuesta.text();
             
             const filas = texto.split(/\r?\n/)
@@ -269,24 +271,23 @@
                 form.elements['descripcion'].value = mangaEncontrado.descripcion;
                 
                 statusMsg.style.color = "#d4a373";
-                statusMsg.innerText = "✓ Datos de '" + mangaEncontrado.titulo + "' cargados.";
-                btnEliminar.style.display = "block"; // Mostrar botón de eliminar
+                statusMsg.innerText = "✓ Obra encontrada. Los cambios sobrescribirán los datos actuales.";
+                btnEliminar.style.display = "block";
             } else {
-                statusMsg.innerText = "";
+                statusMsg.innerText = "Obra no encontrada en la base de datos.";
                 btnEliminar.style.display = "none";
             }
         }
     }
 
-    // Nueva función para eliminar
     function eliminarRegistro() {
         const titulo = document.getElementById('tituloInput').value;
         if (!titulo) return;
 
-        if (confirm(`¿Estás seguro de que deseas ELIMINAR permanentemente "${titulo}"?`)) {
+        if (confirm(`¿Estás completamente seguro de ELIMINAR "${titulo}"? Esta acción borrará toda su historia.`)) {
             btnEnviar.disabled = true;
             btnEliminar.disabled = true;
-            btnEliminar.innerText = "Eliminando...";
+            btnEliminar.innerText = "Borrando registro...";
 
             const formData = new FormData();
             formData.append('accion', 'eliminar');
@@ -295,18 +296,17 @@
             fetch(scriptURL, { method: 'POST', body: formData })
             .then(response => response.text())
             .then(result => {
-                alert("Obra eliminada correctamente.");
+                alert("Obra eliminada permanentemente.");
                 form.reset();
                 btnEnviar.disabled = false;
                 btnEliminar.disabled = false;
-                setMode('actualizar');
+                setMode('nuevo');
                 cargarDatos();
             })
             .catch(err => {
                 alert("Error al intentar eliminar.");
                 btnEnviar.disabled = false;
                 btnEliminar.disabled = false;
-                btnEliminar.innerText = "Eliminar esta obra";
             });
         }
     }
@@ -314,19 +314,19 @@
     form.addEventListener('submit', e => {
         e.preventDefault();
         btnEnviar.disabled = true;
-        btnEnviar.innerText = "Sincronizando...";
+        btnEnviar.innerText = "Sincronizando con Google Sheets...";
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
         .then(response => response.text())
         .then(result => {
-            alert("Operación completada con éxito");
+            alert("¡Base de datos actualizada con éxito!");
             form.reset();
             btnEnviar.disabled = false;
-            setMode(document.getElementById('accionField').value);
+            setMode('nuevo');
             cargarDatos(); 
         })
         .catch(err => {
-            alert("Error de red o servidor.");
+            alert("Error al guardar los datos.");
             btnEnviar.disabled = false;
         });
     });
