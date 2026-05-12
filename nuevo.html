@@ -61,7 +61,10 @@
         input, textarea, select {
             background: var(--input-bg); border: 1px solid #444; color: white;
             padding: 12px; border-radius: 10px; font-size: 16px; width: 100%; box-sizing: border-box;
+            outline: none;
         }
+        
+        input:focus { border-color: var(--accent-color); }
 
         button {
             background-color: var(--accent-color); color: #000; border: none;
@@ -72,7 +75,6 @@
 
         .btn-volver { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px; display: inline-block; }
 
-        /* ESTILO MARCA DE AGUA */
         footer {
             text-align: center; padding: 25px; width: 100%; max-width: 500px;
             color: var(--text-dim); font-size: 0.8rem; letter-spacing: 1px;
@@ -95,11 +97,13 @@
 
     <form id="bibliotecaForm" autocomplete="off">
         <input type="hidden" name="accion" id="accionField" value="nuevo">
+        
         <div class="input-group">
             <label>Título de la Obra</label>
-            <input type="text" name="titulo" id="tituloInput" placeholder="Nombre del manhwa" required list="listaTitulos">
+            <input type="text" name="titulo" id="tituloInput" placeholder="Nombre del manhwa" required list="listaTitulos" oninput="autoCompletar()">
             <datalist id="listaTitulos"></datalist>
         </div>
+
         <div class="row">
             <div class="input-group">
                 <label>Capítulo</label>
@@ -114,6 +118,7 @@
                 </select>
             </div>
         </div>
+
         <div class="row">
             <div class="input-group">
                 <label>Género</label>
@@ -127,10 +132,12 @@
                 </select>
             </div>
         </div>
+
         <div class="input-group">
             <label>URL Portada</label>
             <input type="text" name="portada" placeholder="Link de la imagen">
         </div>
+
         <div class="row">
             <div class="input-group">
                 <label>Link Web</label>
@@ -141,23 +148,26 @@
                 <input type="text" name="i1" placeholder="URL del logo">
             </div>
         </div>
+
         <div class="input-group">
             <label>Descripción</label>
             <textarea name="descripcion" rows="3"></textarea>
         </div>
+
         <button type="submit" id="btnEnviar">Añadir a Biblioteca</button>
     </form>
-    <div id="statusMsg" style="text-align: center; margin-top: 10px; font-size: 0.8rem;"></div>
+    <div id="statusMsg" style="text-align: center; margin-top: 15px; font-size: 0.85rem; min-height: 20px;"></div>
 </div>
 
-<!-- MARCA DE AGUA -->
 <footer>
-    Realizado con <i class="fas fa-heart" style="color: var(--accent-color);"></i> por <b>Angelina</b>
+    Realizado por <b>Tu Nombre</b> &copy; 2026
 </footer>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwvLMB689TasCdbmKBd0xxoNH-_irGeiBDv560IiFcP8o-0kQlXoPg36KjmS1cqNCxt/exec';
     const DATOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8uwIvihvXob_wQ8BxNF0yJ8bo5HnsoHWp7nVFhM_OJckBS2uZzPapje7vArGEfDprRM58b8cwvGG5/pub?gid=0&single=true&output=csv';
+
+    let baseDeDatos = []; 
 
     const form = document.getElementById('bibliotecaForm');
     const btnEnviar = document.getElementById('btnEnviar');
@@ -168,61 +178,93 @@
         document.getElementById('tabNuevo').classList.toggle('active', mode === 'nuevo');
         document.getElementById('tabActualizar').classList.toggle('active', mode === 'actualizar');
         btnEnviar.innerText = mode === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
+        
+        if(mode === 'nuevo') {
+            form.reset();
+            statusMsg.innerText = "";
+        }
     }
 
-    async function cargarSugerencias() {
+    async function cargarDatos() {
         try {
             const respuesta = await fetch(DATOS_URL);
             const texto = await respuesta.text();
             const filas = texto.split(/\r?\n/).slice(1);
             const dataList = document.getElementById('listaTitulos');
             dataList.innerHTML = ""; 
-            const titulosUnicos = new Set();
-            filas.forEach(fila => {
-                const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                if (columnas[0]) {
-                    const titulo = columnas[0].replace(/"/g, '').trim();
-                    if(titulo !== "") titulosUnicos.add(titulo);
-                }
-            });
-            titulosUnicos.forEach(titulo => {
+            
+            baseDeDatos = filas.map(fila => {
+                const col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (!col[0] || col[0].trim() === "") return null;
+                
+                return {
+                    titulo: col[0].replace(/^"|"$/g, '').trim(),
+                    capitulo: col[1]?.replace(/^"|"$/g, '').trim() || "",
+                    estado: col[2]?.replace(/^"|"$/g, '').trim() || "EMISIÓN",
+                    genero: col[3]?.replace(/^"|"$/g, '').trim() || "",
+                    descripcion: col[4]?.replace(/^"|"$/g, '').trim() || "",
+                    l1: col[5]?.replace(/^"|"$/g, '').trim() || "",
+                    i1: col[8]?.replace(/^"|"$/g, '').trim() || "",
+                    portada: col[11]?.replace(/^"|"$/g, '').trim() || "",
+                    tipo: col[12]?.replace(/^"|"$/g, '').trim() || "Todo Público"
+                };
+            }).filter(item => item !== null);
+
+            baseDeDatos.forEach(manga => {
                 const option = document.createElement('option');
-                option.value = titulo;
+                option.value = manga.titulo;
                 dataList.appendChild(option);
             });
-        } catch (e) { console.error("Error al cargar títulos:", e); }
+        } catch (e) { console.error("Error al cargar datos:", e); }
+    }
+
+    function autoCompletar() {
+        const modo = document.getElementById('accionField').value;
+        const tituloBuscado = document.getElementById('tituloInput').value.trim().toLowerCase();
+
+        if (modo === 'actualizar' && tituloBuscado !== "") {
+            const mangaEncontrado = baseDeDatos.find(m => m.titulo.toLowerCase() === tituloBuscado);
+            
+            if (mangaEncontrado) {
+                // Rellenar usando el atributo name
+                form.elements['capitulo'].value = mangaEncontrado.capitulo;
+                form.elements['estado'].value = mangaEncontrado.estado;
+                form.elements['genero'].value = mangaEncontrado.genero;
+                form.elements['tipo'].value = mangaEncontrado.tipo;
+                form.elements['portada'].value = mangaEncontrado.portada;
+                form.elements['l1'].value = mangaEncontrado.l1;
+                form.elements['i1'].value = mangaEncontrado.i1;
+                form.elements['descripcion'].value = mangaEncontrado.descripcion;
+                
+                statusMsg.style.color = "#d4a373";
+                statusMsg.innerText = "✓ Datos de '" + mangaEncontrado.titulo + "' cargados.";
+            } else {
+                statusMsg.innerText = "";
+            }
+        }
     }
 
     form.addEventListener('submit', e => {
         e.preventDefault();
         btnEnviar.disabled = true;
         btnEnviar.innerText = "Sincronizando...";
-        statusMsg.innerText = "Enviando datos...";
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
         .then(response => response.text())
         .then(result => {
-            if (result.includes("ERROR")) {
-                alert(result);
-                btnEnviar.disabled = false;
-                btnEnviar.innerText = "Reintentar";
-            } else {
-                alert("¡Proceso exitoso!: " + result);
-                form.reset();
-                btnEnviar.disabled = false;
-                btnEnviar.innerText = document.getElementById('accionField').value === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
-                statusMsg.innerText = "";
-                cargarSugerencias();
-            }
+            alert("Operación completada con éxito");
+            form.reset();
+            btnEnviar.disabled = false;
+            setMode(document.getElementById('accionField').value);
+            cargarDatos(); 
         })
         .catch(err => {
-            alert("Error de conexión.");
+            alert("Error de red o servidor.");
             btnEnviar.disabled = false;
-            console.error(err);
         });
     });
 
-    cargarSugerencias();
+    window.onload = cargarDatos;
 </script>
 </body>
 </html>
