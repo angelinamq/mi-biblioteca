@@ -73,12 +73,9 @@
 
         form { display: flex; flex-direction: column; gap: 15px; }
 
-        .row { 
-            display: flex; 
-            gap: 15px; 
-        }
+        .row { display: flex; gap: 15px; }
 
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
+        .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
 
         label {
             font-size: 0.7rem;
@@ -111,10 +108,7 @@
             transition: 0.3s;
         }
 
-        button:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-        }
+        button:disabled { background-color: #555; cursor: not-allowed; }
 
         .btn-volver {
             text-decoration: none;
@@ -133,14 +127,10 @@
 
         @media (max-width: 480px) {
             .row { flex-direction: column; gap: 15px; }
-            .container { padding: 20px; }
-            h2 { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
-<!-- archivo: pagina1.html -->
-<a href="index.html">Ir a la página 2</a>
 
 <div class="container">
     <a href="index.html" class="btn-volver">
@@ -154,7 +144,7 @@
         <div id="tabActualizar" class="tab" onclick="setMode('actualizar')">Actualizar</div>
     </div>
 
-    <form id="bibliotecaForm">
+    <form id="bibliotecaForm" autocomplete="off">
         <input type="hidden" name="accion" id="accionField" value="nuevo">
 
         <div class="input-group">
@@ -184,26 +174,26 @@
                 <input type="text" name="genero" placeholder="Acción, etc.">
             </div>
             <div class="input-group">
-                <label>Clasificación</label>
+                <label>Clasificación (Col M)</label>
                 <select name="tipo">
-                    <option value="TODO PÚBLICO">Todo Público</option>
-                    <option value="+18">+18</option>
+                    <option value="Todo Público">Todo Público</option>
+                    <option value="18">18</option>
                 </select>
             </div>
         </div>
 
         <div class="input-group">
-            <label>URL Portada</label>
+            <label>URL Portada (Col L)</label>
             <input type="text" name="portada" placeholder="Link de la imagen">
         </div>
 
         <div class="row">
             <div class="input-group">
-                <label>Link Web</label>
+                <label>Link Web (Col F)</label>
                 <input type="text" name="l1" placeholder="URL para leer">
             </div>
             <div class="input-group">
-                <label>Logo Icono</label>
+                <label>Logo Icono (Col I)</label>
                 <input type="text" name="i1" placeholder="URL del logo">
             </div>
         </div>
@@ -213,15 +203,17 @@
             <textarea name="descripcion" rows="3"></textarea>
         </div>
 
-        <button type="submit" id="btnEnviar">Guardar en Biblioteca</button>
+        <button type="submit" id="btnEnviar">Añadir a Biblioteca</button>
     </form>
 
     <div id="statusMsg"></div>
 </div>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby_lwM_yOxj6J8_I8KktuP-11nnbQjLGdhBJHQF2iDea5u14zrXKK-9y25Z8tXI_mr_Vw/exec';
-    const DATOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQqdHFLoW-soBo7YP-IeMArvI8QTGzHhm_g2UuuA1_wfdHXe1JolxYsyXbSBUet6m-_NlUbvZd-Bttz/pub?gid=0&single=true&output=csv';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwvLMB689TasCdbmKBd0xxoNH-_irGeiBDv560IiFcP8o-0kQlXoPg36KjmS1cqNCxt/exec';
+    
+    // URL DEL NUEVO EXCEL
+    const DATOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8uwIvihvXob_wQ8BxNF0yJ8bo5HnsoHWp7nVFhM_OJckBS2uZzPapje7vArGEfDprRM58b8cwvGG5/pub?gid=0&single=true&output=csv';
 
     const form = document.getElementById('bibliotecaForm');
     const btnEnviar = document.getElementById('btnEnviar');
@@ -241,37 +233,51 @@
             const filas = texto.split(/\r?\n/).slice(1);
             const dataList = document.getElementById('listaTitulos');
             dataList.innerHTML = ""; 
+            const titulosUnicos = new Set();
+            
             filas.forEach(fila => {
                 const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 if (columnas[0]) {
                     const titulo = columnas[0].replace(/"/g, '').trim();
-                    const option = document.createElement('option');
-                    option.value = titulo;
-                    dataList.appendChild(option);
+                    if(titulo !== "") titulosUnicos.add(titulo);
                 }
             });
-        } catch (e) { console.log("Error al cargar títulos:", e); }
+            
+            titulosUnicos.forEach(titulo => {
+                const option = document.createElement('option');
+                option.value = titulo;
+                dataList.appendChild(option);
+            });
+        } catch (e) { 
+            console.error("Error al cargar títulos:", e); 
+        }
     }
 
     form.addEventListener('submit', e => {
         e.preventDefault();
         btnEnviar.disabled = true;
-        btnEnviar.innerText = "Enviando datos...";
-        statusMsg.innerText = "Conectando con Google Sheets...";
+        btnEnviar.innerText = "Sincronizando...";
+        statusMsg.innerText = "Enviando datos...";
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-        .then(() => {
-            alert("¡Éxito! La biblioteca se ha actualizado.");
-            form.reset();
-            btnEnviar.disabled = false;
-            statusMsg.innerText = "";
-            setMode(document.getElementById('accionField').value);
-            cargarSugerencias();
+        .then(response => response.text())
+        .then(result => {
+            if (result.includes("ERROR")) {
+                alert(result);
+                btnEnviar.disabled = false;
+                btnEnviar.innerText = "Reintentar";
+            } else {
+                alert("¡Proceso exitoso!: " + result);
+                form.reset();
+                btnEnviar.disabled = false;
+                btnEnviar.innerText = document.getElementById('accionField').value === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
+                statusMsg.innerText = "";
+                cargarSugerencias();
+            }
         })
         .catch(err => {
-            alert("Error al guardar. Verifica tu conexión.");
+            alert("Error de conexión.");
             btnEnviar.disabled = false;
-            statusMsg.innerText = "Error de envío.";
             console.error(err);
         });
     });
