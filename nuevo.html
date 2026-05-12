@@ -10,6 +10,7 @@
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --accent-color: #d4a373;
+            --danger-color: #e63946; /* Color para eliminar */
             --text-main: #f5f5f5;
             --text-dim: #a0a0a0;
             --input-bg: #252525;
@@ -66,11 +67,27 @@
         
         input:focus { border-color: var(--accent-color); }
 
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
         button {
             background-color: var(--accent-color); color: #000; border: none;
             padding: 18px; border-radius: 12px; font-weight: bold; cursor: pointer;
-            font-size: 1rem; margin-top: 10px; transition: 0.3s;
+            font-size: 1rem; transition: 0.3s; width: 100%;
         }
+
+        /* Estilo para el botón de eliminar */
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 12px;
+            display: none; /* Oculto por defecto */
+        }
+        .btn-delete:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
         button:disabled { background-color: #555; cursor: not-allowed; }
 
         .btn-volver { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px; display: inline-block; }
@@ -154,7 +171,12 @@
             <textarea name="descripcion" rows="3"></textarea>
         </div>
 
-        <button type="submit" id="btnEnviar">Añadir a Biblioteca</button>
+        <div class="btn-group">
+            <button type="submit" id="btnEnviar">Añadir a Biblioteca</button>
+            <button type="button" id="btnEliminar" class="btn-delete" onclick="eliminarRegistro()">
+                <i class="fas fa-trash-alt"></i> Eliminar esta obra
+            </button>
+        </div>
     </form>
     <div id="statusMsg" style="text-align: center; margin-top: 15px; font-size: 0.85rem; min-height: 20px;"></div>
 </div>
@@ -171,13 +193,18 @@
 
     const form = document.getElementById('bibliotecaForm');
     const btnEnviar = document.getElementById('btnEnviar');
+    const btnEliminar = document.getElementById('btnEliminar');
     const statusMsg = document.getElementById('statusMsg');
 
     function setMode(mode) {
         document.getElementById('accionField').value = mode;
         document.getElementById('tabNuevo').classList.toggle('active', mode === 'nuevo');
         document.getElementById('tabActualizar').classList.toggle('active', mode === 'actualizar');
+        
         btnEnviar.innerText = mode === 'nuevo' ? "Añadir a Biblioteca" : "Actualizar Registro";
+        
+        // Ocultar botón eliminar al cambiar de modo
+        btnEliminar.style.display = "none";
         
         if(mode === 'nuevo') {
             form.reset();
@@ -185,13 +212,11 @@
         }
     }
 
-    // FUNCIÓN CARGAR DATOS ACTUALIZADA CON TU LÓGICA DE FILTRADO
     async function cargarDatos() {
         try {
             const respuesta = await fetch(DATOS_URL);
             const texto = await respuesta.text();
             
-            // APLICACIÓN DEL CAMBIO DE FILTRADO:
             const filas = texto.split(/\r?\n/)
                 .filter(line => line.trim() !== "" && line.split(',')[0].replace(/"/g, '').trim() !== "")
                 .slice(1);
@@ -203,7 +228,6 @@
                 const col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 const clean = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
 
-                // Mapeo de columnas
                 return {
                     titulo: clean(col[0]),
                     capitulo: clean(col[1]),
@@ -246,9 +270,44 @@
                 
                 statusMsg.style.color = "#d4a373";
                 statusMsg.innerText = "✓ Datos de '" + mangaEncontrado.titulo + "' cargados.";
+                btnEliminar.style.display = "block"; // Mostrar botón de eliminar
             } else {
                 statusMsg.innerText = "";
+                btnEliminar.style.display = "none";
             }
+        }
+    }
+
+    // Nueva función para eliminar
+    function eliminarRegistro() {
+        const titulo = document.getElementById('tituloInput').value;
+        if (!titulo) return;
+
+        if (confirm(`¿Estás seguro de que deseas ELIMINAR permanentemente "${titulo}"?`)) {
+            btnEnviar.disabled = true;
+            btnEliminar.disabled = true;
+            btnEliminar.innerText = "Eliminando...";
+
+            const formData = new FormData();
+            formData.append('accion', 'eliminar');
+            formData.append('titulo', titulo);
+
+            fetch(scriptURL, { method: 'POST', body: formData })
+            .then(response => response.text())
+            .then(result => {
+                alert("Obra eliminada correctamente.");
+                form.reset();
+                btnEnviar.disabled = false;
+                btnEliminar.disabled = false;
+                setMode('actualizar');
+                cargarDatos();
+            })
+            .catch(err => {
+                alert("Error al intentar eliminar.");
+                btnEnviar.disabled = false;
+                btnEliminar.disabled = false;
+                btnEliminar.innerText = "Eliminar esta obra";
+            });
         }
     }
 
