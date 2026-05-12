@@ -21,8 +21,8 @@
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
             padding: 15px;
             box-sizing: border-box;
@@ -40,103 +40,52 @@
         }
 
         h2 {
-            text-align: center;
-            color: var(--accent-color);
-            margin-bottom: 20px;
-            font-weight: 300;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.4rem;
+            text-align: center; color: var(--accent-color); margin-bottom: 20px;
+            font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-size: 1.4rem;
         }
 
-        .tabs {
-            display: flex;
-            background: #111;
-            padding: 5px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
+        .tabs { display: flex; background: #111; padding: 5px; border-radius: 12px; margin-bottom: 20px; }
         .tab {
-            flex: 1;
-            padding: 12px 5px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            transition: 0.3s;
-            color: var(--text-dim);
+            flex: 1; padding: 12px 5px; text-align: center; cursor: pointer;
+            border-radius: 8px; font-weight: bold; font-size: 0.85rem;
+            transition: 0.3s; color: var(--text-dim);
         }
-
         .tab.active { background-color: var(--accent-color); color: #000; }
 
         form { display: flex; flex-direction: column; gap: 15px; }
-
         .row { display: flex; gap: 15px; }
-
         .input-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
 
-        label {
-            font-size: 0.7rem;
-            color: var(--accent-color);
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+        label { font-size: 0.7rem; color: var(--accent-color); font-weight: bold; text-transform: uppercase; }
 
         input, textarea, select {
-            background: var(--input-bg);
-            border: 1px solid #444;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 16px;
-            width: 100%;
-            box-sizing: border-box;
+            background: var(--input-bg); border: 1px solid #444; color: white;
+            padding: 12px; border-radius: 10px; font-size: 16px; width: 100%; box-sizing: border-box;
         }
 
         button {
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 18px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 10px;
-            transition: 0.3s;
+            background-color: var(--accent-color); color: #000; border: none;
+            padding: 18px; border-radius: 12px; font-weight: bold; cursor: pointer;
+            font-size: 1rem; margin-top: 10px; transition: 0.3s;
         }
-
         button:disabled { background-color: #555; cursor: not-allowed; }
 
-        .btn-volver {
-            text-decoration: none;
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
+        .btn-volver { text-decoration: none; color: var(--text-dim); font-size: 0.9rem; margin-bottom: 10px; display: inline-block; }
 
-        #statusMsg {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--accent-color);
+        /* ESTILO MARCA DE AGUA */
+        footer {
+            text-align: center; padding: 25px; width: 100%; max-width: 500px;
+            color: var(--text-dim); font-size: 0.8rem; letter-spacing: 1px;
         }
+        footer b { color: var(--accent-color); }
 
-        @media (max-width: 480px) {
-            .row { flex-direction: column; gap: 15px; }
-        }
+        @media (max-width: 480px) { .row { flex-direction: column; gap: 15px; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="index.html" class="btn-volver">
-        <i class="fas fa-arrow-left"></i> Volver al Inicio
-    </a>
-    
+    <a href="index.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Inicio</a>
     <h2>Admin Panel</h2>
 
     <div class="tabs">
@@ -146,13 +95,11 @@
 
     <form id="bibliotecaForm" autocomplete="off">
         <input type="hidden" name="accion" id="accionField" value="nuevo">
-
         <div class="input-group">
             <label>Título de la Obra</label>
             <input type="text" name="titulo" id="tituloInput" placeholder="Nombre del manhwa" required list="listaTitulos">
             <datalist id="listaTitulos"></datalist>
         </div>
-
         <div class="row">
             <div class="input-group">
                 <label>Capítulo</label>
@@ -167,29 +114,26 @@
                 </select>
             </div>
         </div>
-
         <div class="row">
             <div class="input-group">
                 <label>Género</label>
                 <input type="text" name="genero" placeholder="Acción, etc.">
             </div>
             <div class="input-group">
-                <label>Clasificación </label>
+                <label>Clasificación</label>
                 <select name="tipo">
                     <option value="Todo Público">Todo Público</option>
                     <option value="18">18</option>
                 </select>
             </div>
         </div>
-
         <div class="input-group">
             <label>URL Portada</label>
             <input type="text" name="portada" placeholder="Link de la imagen">
         </div>
-
         <div class="row">
             <div class="input-group">
-                <label>Link Web </label>
+                <label>Link Web</label>
                 <input type="text" name="l1" placeholder="URL para leer">
             </div>
             <div class="input-group">
@@ -197,22 +141,22 @@
                 <input type="text" name="i1" placeholder="URL del logo">
             </div>
         </div>
-
         <div class="input-group">
             <label>Descripción</label>
             <textarea name="descripcion" rows="3"></textarea>
         </div>
-
         <button type="submit" id="btnEnviar">Añadir a Biblioteca</button>
     </form>
-
-    <div id="statusMsg"></div>
+    <div id="statusMsg" style="text-align: center; margin-top: 10px; font-size: 0.8rem;"></div>
 </div>
+
+<!-- MARCA DE AGUA -->
+<footer>
+    Realizado con <i class="fas fa-heart" style="color: var(--accent-color);"></i> por <b>Angelina</b>
+</footer>
 
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwvLMB689TasCdbmKBd0xxoNH-_irGeiBDv560IiFcP8o-0kQlXoPg36KjmS1cqNCxt/exec';
-    
-    // URL DEL NUEVO EXCEL
     const DATOS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8uwIvihvXob_wQ8BxNF0yJ8bo5HnsoHWp7nVFhM_OJckBS2uZzPapje7vArGEfDprRM58b8cwvGG5/pub?gid=0&single=true&output=csv';
 
     const form = document.getElementById('bibliotecaForm');
@@ -234,7 +178,6 @@
             const dataList = document.getElementById('listaTitulos');
             dataList.innerHTML = ""; 
             const titulosUnicos = new Set();
-            
             filas.forEach(fila => {
                 const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 if (columnas[0]) {
@@ -242,15 +185,12 @@
                     if(titulo !== "") titulosUnicos.add(titulo);
                 }
             });
-            
             titulosUnicos.forEach(titulo => {
                 const option = document.createElement('option');
                 option.value = titulo;
                 dataList.appendChild(option);
             });
-        } catch (e) { 
-            console.error("Error al cargar títulos:", e); 
-        }
+        } catch (e) { console.error("Error al cargar títulos:", e); }
     }
 
     form.addEventListener('submit', e => {
