@@ -114,6 +114,24 @@
             transform: scale(1.15);
         }
 
+        /* Estilo del enlace sutil para agregar nuevo */
+        .admin-link {
+            margin-top: 35px;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-link:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
         footer {
             text-align: center; 
             padding: 20px 10px; 
@@ -153,6 +171,10 @@
                 <span>ANIMES</span>
             </a>
         </div>
+
+        <a href="nuevo.html" class="admin-link">
+            <i class="fas fa-plus-circle"></i> ¿Deseas añadir un nuevo registro?
+        </a>
     </div>
 
     <footer>
