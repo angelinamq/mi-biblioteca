@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Biblioteca Personal</title>
+    <title>Manhwas - Mi Biblioteca Personal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -77,6 +77,9 @@
             border-radius: 6px;
             background: #121212;
             border: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .filter-bar a:hover, .filter-bar a.active { 
@@ -258,10 +261,13 @@
 <body>
 
     <header>
-        <div class="emision-badge">Mi Biblioteca</div>
+        <div class="emision-badge">Manhwas</div>
         <div class="nav-container">
             <nav class="filter-bar">
-                <a onclick="filterByStatus('TODOS')" id="btn-todos" class="active">Inicio</a>
+                <a href="index.html" style="border: 1px solid var(--accent-color); background: #000; color: var(--accent-color);">
+                    <i class="fas fa-th-large"></i> Menú Principal
+                </a>
+                <a onclick="filterByStatus('TODOS')" id="btn-todos" class="active">Ver Todos</a>
                 <a onclick="filterByStatus('EMISIÓN')" id="btn-emision">Emisión</a>
                 <a onclick="filterByStatus('FINALIZADO')" id="btn-finalizado">Finalizado</a>
                 <a onclick="filterByStatus('PAUSA')" id="btn-pausa">Pausa</a>
@@ -273,7 +279,7 @@
             </nav>
             
             <div class="search-wrapper">
-                <input type="text" id="searchInput" list="mangaSuggestions" placeholder="Buscar título..." onkeyup="handleSearchInput()" oninput="toggleClearButton()">
+                <input type="text" id="searchInput" list="mangaSuggestions" placeholder="Buscar manhwa..." onkeyup="handleSearchInput()" oninput="toggleClearButton()">
                 <datalist id="mangaSuggestions"></datalist>
                 <i id="clearBtn" class="fas fa-times clear-search" onclick="clearSearch()"></i>
                 <i class="fas fa-search" style="color: var(--accent-color)"></i>
@@ -298,36 +304,42 @@
 
         const cleanForFilter = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim() : "";
 
-        // FUNCIÓN ACTUALIZADA
         async function loadData() {
             try {
                 const response = await fetch(SHEET_URL);
                 const data = await response.text();
                 
-                // Aplicamos el filtro para omitir líneas vacías o sin título
+                // Dividir por filas y descartar la cabecera (primera fila)
                 const rows = data.split(/\r?\n/)
                     .filter(line => line.trim() !== "" && line.split(',')[0].replace(/"/g, '').trim() !== "")
                     .slice(1);
                 
-                allMangas = rows.map(row => {
+                const parsedItems = rows.map(row => {
                     const col = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     const cleanCell = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
 
                     return {
-                        titulo: cleanCell(col[0]),
-                        cap: cleanCell(col[1]),
-                        estado: cleanCell(col[2]) || "EMISIÓN",
-                        genero: cleanCell(col[3]),
-                        desc: cleanCell(col[4]),
-                        l1: cleanCell(col[5]), 
-                        i1: cleanCell(col[8]), 
-                        portada: cleanCell(col[11]), 
-                        tipo: cleanCell(col[12]) 
+                        titulo: cleanCell(col[0]),    // Columna A: titulo
+                        cap: cleanCell(col[1]),       // Columna B: capitulo
+                        estado: cleanCell(col[2]) || "EMISIÓN", // Columna C: estado
+                        genero: cleanCell(col[3]),    // Columna D: genero
+                        desc: cleanCell(col[4]),      // Columna E: descripcion
+                        l1: cleanCell(col[5]),        // Columna F: enlace_1
+                        i1: cleanCell(col[8]),        // Columna I: img_1
+                        portada: cleanCell(col[11]),  // Columna L: portada
+                        tipo_18: cleanCell(col[12]),  // Columna M: 18
+                        categoria: cleanCell(col[13]) // Columna N: CATEGORIA
                     };
+                });
+
+                // Filtrar para que ÚNICAMENTE entren los clasificados como MANHWA o MANHWAS
+                allMangas = parsedItems.filter(item => {
+                    const cat = cleanForFilter(item.categoria);
+                    return cat === "MANHWA" || cat === "MANHWAS";
                 });
                 
                 updateSuggestions(); 
-                renderGrid(allMangas);
+                filterMangas();
             } catch (e) { 
                 console.error("Error cargando datos:", e); 
             }
@@ -363,6 +375,10 @@
 
         function renderGrid(list) {
             const grid = document.getElementById('manga-grid');
+            if (list.length === 0) {
+                grid.innerHTML = `<p style="text-align:center; grid-column: 1/-1; color: var(--text-dim);">No se encontraron manhwas registrados.</p>`;
+                return;
+            }
             grid.innerHTML = list.map(item => `
                 <article class="card">
                     <div class="image-container">
@@ -371,7 +387,7 @@
                     <div class="content">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div class="genre-tag" style="font-size: 0.7rem; color: var(--accent-color);">${item.genero}</div>
-                            ${item.tipo === "18" ? `<span style="color:var(--danger-color); font-size:10px; font-weight:bold; border:1px solid; padding:1px 3px; border-radius:3px;">+18</span>` : ''}
+                            ${item.tipo_18 === "18" ? `<span style="color:var(--danger-color); font-size:10px; font-weight:bold; border:1px solid; padding:1px 3px; border-radius:3px;">+18</span>` : ''}
                         </div>
                         <h2 title="${item.titulo}">${item.titulo}</h2>
                         <p class="description">${item.desc}</p>
@@ -407,7 +423,7 @@
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allMangas.filter(m => {
                 let matchesStatus = (currentStatus === 'TODOS') ? true : 
-                                   (currentStatus === '18') ? (m.tipo === "18") : 
+                                   (currentStatus === '18') ? (cleanForFilter(m.tipo_18) === "18" || cleanForFilter(m.genero).includes("18")) : 
                                    (cleanForFilter(m.estado) === cleanForFilter(currentStatus));
                 
                 let matchesSearch = m.titulo.toLowerCase().includes(query);
