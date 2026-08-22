@@ -193,8 +193,8 @@
         
         <div class="row">
             <div class="input-group" style="flex: 2;">
-                <label>Título de la Obra</label>
-                <input type="text" name="titulo" id="tituloInput" placeholder="Nombre de la obra" required list="listaTitulos" oninput="autoCompletar()">
+                <label>Título de la Obra *</label>
+                <input type="text" name="titulo" id="tituloInput" placeholder="Nombre de la obra" list="listaTitulos" oninput="autoCompletar()">
                 <datalist id="listaTitulos"></datalist>
             </div>
             <div class="input-group" style="flex: 1;">
@@ -208,8 +208,8 @@
 
         <div class="row">
             <div class="input-group">
-                <label>Capítulo / Ep</label>
-                <input type="text" name="capitulo" placeholder="Ej: 124 o Ep. 12">
+                <label>Capítulo / Ep *</label>
+                <input type="text" name="capitulo" id="capituloInput" placeholder="Ej: 124 o Ep. 12">
             </div>
             <div class="input-group">
                 <label>Temporada / S/N</label>
@@ -236,19 +236,19 @@
         </div>
 
         <div class="input-group">
-            <label>Género</label>
-            <input type="text" name="genero" placeholder="Acción, Romántica, etc.">
+            <label>Género *</label>
+            <input type="text" name="genero" id="generoInput" placeholder="Acción, Romántica, etc.">
         </div>
 
         <div class="input-group">
-            <label>URL Portada</label>
-            <input type="text" name="portada" placeholder="Link de la imagen">
+            <label>URL Portada *</label>
+            <input type="text" name="portada" id="portadaInput" placeholder="Link de la imagen">
         </div>
 
         <div class="row">
             <div class="input-group">
-                <label>Link Web (Enlace 1)</label>
-                <input type="text" name="l1" placeholder="URL para ver/leer">
+                <label>Link Web (Enlace 1) *</label>
+                <input type="text" name="l1" id="l1Input" placeholder="URL para ver/leer">
             </div>
             <div class="input-group">
                 <label>Logo Icono (Img 1)</label>
@@ -285,6 +285,14 @@
     const btnEnviar = document.getElementById('btnEnviar');
     const btnEliminar = document.getElementById('btnEliminar');
     const statusMsg = document.getElementById('statusMsg');
+
+    // Bloquear la tecla ENTER para evitar envíos accidentales
+    form.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            return false;
+        }
+    });
 
     function setMode(mode) {
         document.getElementById('accionField').value = mode;
@@ -364,6 +372,7 @@
                 statusMsg.innerText = "✓ Obra encontrada. Los cambios sobrescribirán los datos actuales.";
                 btnEliminar.style.display = "block";
             } else {
+                statusMsg.style.color = "#ff4d4d";
                 statusMsg.innerText = "Obra no encontrada en la base de datos.";
                 btnEliminar.style.display = "none";
             }
@@ -403,8 +412,33 @@
 
     form.addEventListener('submit', e => {
         e.preventDefault();
+
+        // Validar campos requeridos antes de procesar
+        const titulo = document.getElementById('tituloInput').value.trim();
+        const capitulo = document.getElementById('capituloInput').value.trim();
+        const genero = document.getElementById('generoInput').value.trim();
+        const portada = document.getElementById('portadaInput').value.trim();
+        const l1 = document.getElementById('l1Input').value.trim();
+
+        if (!titulo || !capitulo || !genero || !portada || !l1) {
+            statusMsg.style.color = "#ff4d4d";
+            statusMsg.innerText = "⚠️ Por favor completa los campos requeridos marcados con (*)";
+            alert("Faltan campos requeridos por completar.");
+            
+            // Enfocar el primer campo que esté vacío
+            if (!titulo) document.getElementById('tituloInput').focus();
+            else if (!capitulo) document.getElementById('capituloInput').focus();
+            else if (!genero) document.getElementById('generoInput').focus();
+            else if (!portada) document.getElementById('portadaInput').focus();
+            else if (!l1) document.getElementById('l1Input').focus();
+            
+            return;
+        }
+
         btnEnviar.disabled = true;
         btnEnviar.innerText = "Sincronizando con Google Sheets...";
+        statusMsg.style.color = "#e6ccb2";
+        statusMsg.innerText = "Guardando información...";
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
         .then(response => response.text())
@@ -417,6 +451,8 @@
         })
         .catch(err => {
             alert("Error al guardar los datos.");
+            statusMsg.style.color = "#ff4d4d";
+            statusMsg.innerText = "Error al conectar con la base de datos.";
             btnEnviar.disabled = false;
         });
     });
