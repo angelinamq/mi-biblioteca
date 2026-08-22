@@ -309,7 +309,6 @@
                 const response = await fetch(SHEET_URL);
                 const data = await response.text();
                 
-                // Dividir por filas y descartar la cabecera (primera fila)
                 const rows = data.split(/\r?\n/)
                     .filter(line => line.trim() !== "" && line.split(',')[0].replace(/"/g, '').trim() !== "")
                     .slice(1);
@@ -319,20 +318,19 @@
                     const cleanCell = (val) => val ? val.replace(/^"|"$/g, '').trim() : "";
 
                     return {
-                        titulo: cleanCell(col[0]),    // Columna A: titulo
-                        cap: cleanCell(col[1]),       // Columna B: capitulo
-                        estado: cleanCell(col[2]) || "EMISIÓN", // Columna C: estado
-                        genero: cleanCell(col[3]),    // Columna D: genero
-                        desc: cleanCell(col[4]),      // Columna E: descripcion
-                        l1: cleanCell(col[5]),        // Columna F: enlace_1
-                        i1: cleanCell(col[8]),        // Columna I: img_1
-                        portada: cleanCell(col[11]),  // Columna L: portada
-                        tipo_18: cleanCell(col[12]),  // Columna M: 18
-                        categoria: cleanCell(col[13]) // Columna N: CATEGORIA
+                        titulo: cleanCell(col[0]),    
+                        cap: cleanCell(col[1]),       
+                        estado: cleanCell(col[2]) || "EMISIÓN", 
+                        genero: cleanCell(col[3]),    
+                        desc: cleanCell(col[4]),      
+                        l1: cleanCell(col[5]),        
+                        i1: cleanCell(col[8]),        
+                        portada: cleanCell(col[11]),  
+                        tipo_18: cleanCell(col[12]),  
+                        categoria: cleanCell(col[13]) 
                     };
                 });
 
-                // Filtrar de manera flexible para aceptar cualquier variante de Manhwa
                 allMangas = parsedItems.filter(item => {
                     const cat = cleanForFilter(item.categoria);
                     return cat.includes("MANHWA");
@@ -434,7 +432,7 @@
 
         window.onscroll = function() {
             const btn = document.getElementById("backToTop");
-            if (document.body.scrollTop > v  300 || document.documentElement.scrollTop > 300) {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
                 btn.style.display = "block";
                 setTimeout(() => btn.style.opacity = "1", 10);
             } else {
