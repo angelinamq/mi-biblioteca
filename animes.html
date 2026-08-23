@@ -211,6 +211,7 @@
             font-size: 0.7rem; 
         }
         .status-badge { padding: 2px 6px; border-radius: 4px; background: #1a1a1a; color: #ffffff; border: 1px solid #333; font-weight: bold; }
+        .season-badge { color: var(--text-dim); font-weight: bold; background: #121212; padding: 2px 6px; border-radius: 4px; border: 1px solid #222; }
         .chapters { color: var(--accent-color); font-weight: bold; }
 
         #backToTop {
@@ -306,7 +307,9 @@
 
         async function loadData() {
             try {
-                const response = await fetch(SHEET_URL);
+                // Parámetro dinámico para evitar la caché de Google Sheets y del navegador
+                const cacheBuster = `&_nocache=${Date.now()}`;
+                const response = await fetch(SHEET_URL + cacheBuster);
                 const data = await response.text();
                 
                 // Dividir por líneas y descartar la primera fila (encabezados)
@@ -328,7 +331,8 @@
                         i1: cleanCell(col[8]),        // Columna I
                         portada: cleanCell(col[11]),  // Columna L
                         tipo_18: cleanCell(col[12]),  // Columna M (18)
-                        categoria: cleanCell(col[13]) // Columna N (CATEGORIA)
+                        categoria: cleanCell(col[13]),// Columna N (CATEGORIA)
+                        temporada: cleanCell(col[14]) // Columna O (TEMPORADA)
                     };
                 });
 
@@ -397,6 +401,7 @@
                         </div>
                         <div class="stats">
                             <span class="status-badge">${item.estado}</span>
+                            ${item.temporada ? `<span class="season-badge">TEMP: ${item.temporada}</span>` : ''}
                             <span class="chapters">CAP: ${item.cap}</span>
                         </div>
                     </div>
